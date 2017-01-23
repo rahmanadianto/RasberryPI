@@ -1,0 +1,24 @@
+Code memory: 82
+Beginning address: 000000
+Sending data: 1234
+
+Code memory: B1
+Beginning address: 000200
+Sending data: 1234
+
+Code memory: 82
+Beginning address: 000000
+Sending data: 1234
+
+Code memory: B1
+Beginning address: 000200
+Sending data: 1234
+
+Code memory: 82
+Beginning address: 000000
+Sending data: 1234
+
+Code memory: B1
+Beginning address: 000200
+Sending data: 1234
+
