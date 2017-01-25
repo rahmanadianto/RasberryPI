@@ -46,11 +46,10 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
+def sent_data(values):
     """Use Googlesheet API to apend data.
 
-    Document:
-    https://docs.google.com/spreadsheets/d/1PYRx1rladDsm_nW3dHbX_R7oX1OxCrUvHPDEIJfkOJ8/edit
+    Spreed Sheet ID : 1PYRx1rladDsm_nW3dHbX_R7oX1OxCrUvHPDEIJfkOJ8
     """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
@@ -62,14 +61,7 @@ def main():
     spreadsheet_id = '1PYRx1rladDsm_nW3dHbX_R7oX1OxCrUvHPDEIJfkOJ8'
     range_name = 'A:E'
     value_input_option = 'RAW'
-    values = [
-        [
-            1234, '8', '10', 192, 'PASSED'
-        ],
-        [
-            1234, '8', '10', 12, 'FAILED'
-        ]
-    ]
+    
     body = {
       'values': values
     }
@@ -77,7 +69,5 @@ def main():
         spreadsheetId=spreadsheet_id, range=range_name,
         valueInputOption=value_input_option, body=body).execute()
 
-
-if __name__ == '__main__':
-    main()
+    return result
 
