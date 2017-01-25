@@ -12,24 +12,27 @@ def main():
     """
     port = serial.Serial(
         port = '/dev/ttyUSB0',
-        baudrate = 19200,
+        baudrate = 9600,
         parity = serial.PARITY_NONE,
         stopbits = serial.STOPBITS_ONE,
         bytesize = serial.EIGHTBITS,
-        timeout = 10,
+        timeout = 1,
         rtscts = False,
         dsrdtr = False,
         xonxoff = False)
 
-    while True:
-        with open("log.txt", "a") as file_out:
-            #receive byte until eol or timeout
-            receive = str(port.readline())
-            file_out.write(receive)
+    buffer_read = ""
 
-            value = extract_str(receive)
+    while True:
+        receive = str(port.read())
+        buffer_read += receive
+        if receive == "*":
+            with open("log.txt", "a") as file_out:
+                file_out.write(buffer_read)
+            value = extract_str(buffer_read)
             if value:
-                print(value) 
+                print("Sent to server", value)
+            buffer_read = "" 
 
 
 
