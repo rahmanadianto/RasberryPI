@@ -11,15 +11,30 @@
     E = Data (bit 42-(len - 3)) {max 1068 character}
 '''
 
-with open("data.txt", "r") as file_in:
-    fins_list = file_in.read().splitlines()
-    for fins in fins_list:
-        if (fins.find("0102", 26, 30) != -1):
-            with open("result.txt", "a") as file_out:
-                address_code = fins[30:32]
-                begin_address = fins[32:38]
-                hex_value = fins[42:len(fins) - 3]
-                dec_value = int(hex_value, 16)
-                file_out.write("Code memory: " + address_code + "\n")
-                file_out.write("Beginning address: " + begin_address + "\n")
-                file_out.write("Sending data: " + str(dec_value) + "\n\n")
+def extract_str(data, cmd_code = "0102"):
+    '''Extract data from single data with FINS protocol
+
+    Return: [address_code, begin_address, value]
+    '''
+    if (data.find(cmd_code, 26, 30) != -1):
+        address_code = data[30:32]
+        begin_address = data[32:38]
+        value = str(int(data[42:len(data) - 3], 16))
+        return [address_code, begin_address, value]
+    else:
+        return []
+
+def extract_file(file_in, file_out, cmd_code="0102"):
+    '''Extract data from file data with FINS protocol
+
+    Return: result.txt
+    '''
+    with open(file_in, "r") as file_in:
+        fins_list = file_in.read().splitlines()
+        with open(file_out, "w") as file_out:
+            for fins in fins_list:
+                result = extract_str(fins, cmd_code)
+                #check if result no empty
+                if result:
+                    file_out.write(",".join(result))
+                    file_out.write("\n")
