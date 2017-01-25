@@ -22,7 +22,7 @@ def main():
         xonxoff = False)
 
     while True:
-        with open("data.txt", "a") as file_out:
+        with open("log.txt", "a") as file_out:
             #receive byte until eol or timeout
             receive = str(port.readline())
             file_out.write(receive)
