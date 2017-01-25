@@ -2,6 +2,9 @@
 
 import serial
 
+from extract_value import extract_str
+from sent_to_google_sheet import sent_data
+
 def main():
     """Logging PLC data
 
@@ -13,19 +16,20 @@ def main():
         parity = serial.PARITY_NONE,
         stopbits = serial.STOPBITS_ONE,
         bytesize = serial.EIGHTBITS,
-        writeTimeout = 0,
-        timeout = 1,
+        timeout = 10,
         rtscts = False,
         dsrdtr = False,
         xonxoff = False)
 
     while True:
         with open("data.txt", "a") as file_out:
-            #Receive one character
-            receive = port.read()
-            print(receive)
-            #Append character to file
-            file_out.write(str(receive))
+            #receive byte until eol or timeout
+            receive = str(port.readline())
+            file_out.write(receive)
+
+            value = extract_str(receive)
+            if value:
+                print(value) 
 
 
 
