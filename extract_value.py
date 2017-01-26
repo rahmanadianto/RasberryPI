@@ -8,23 +8,24 @@
     B = Memory area code (bit 30-31)
     C = Address (bit 32-37)
     D = Number of element (bit 38-41)
-    E = Data (bit 42-(len - 3)) {max 1068 character}
+    E = Data (bit 42 -(len - 3)) {max 1068 character}
 '''
 
-def extract_str(data, cmd_code = "0102"):
+def extract_str(data):
     '''Extract data from single data with FINS protocol
 
-    Return: [address_code, begin_address, value]
+    Return: [address_code, begin_address, number, value]
     '''
-    if (data.find(cmd_code, 26, 30) != -1):
+    if (data.find("0102", 26, 30) != -1):
         address_code = data[30:32]
         begin_address = data[32:38]
-        value = str(int(data[42:len(data) - 3], 16))
-        return [address_code, begin_address, value]
+        number = str(int(data[38:42], 16))
+        value = data[42:len(data) - 3]
+        return [address_code, begin_address, number, value]
     else:
         return []
 
-def extract_file(file_in, file_out, cmd_code="0102"):
+def extract_file(file_in, file_out):
     '''Extract data from file data with FINS protocol
 
     Return: result.txt
@@ -33,8 +34,10 @@ def extract_file(file_in, file_out, cmd_code="0102"):
         fins_list = file_in.read().splitlines()
         with open(file_out, "w") as file_out:
             for fins in fins_list:
-                result = extract_str(fins, cmd_code)
-                #check if result no empty
+                rstrip = fins.replace("\n", "").replace("\r","")
+                result = extract_str(rstrip)
+                #check if result not empty
                 if result:
                     file_out.write(",".join(result))
                     file_out.write("\n")
+
