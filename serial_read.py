@@ -8,11 +8,14 @@ from sent_to_google_sheet import sent_data
 def local_log(fins):
     '''Append fins data to log file
     '''
+    print(fins)
     with open("log.txt", "a") as file_out:
         file_out.write(fins)
 
 def server_log(value):
     print("Sent:", value)
+    with open("sent.txt", "a") as file_out:
+        file_out.write(str(value) + "\n")
 
 def main():
     '''Logging PLC data
@@ -37,11 +40,12 @@ def main():
         receive_decode = ""
 
         #decode bytes
-        if isinstance(receive, bytes):
+        try:
             receive_decode = receive.decode()
             buffer_read += receive_decode
-        else:
-            receive_decode = ""
+        except ValueError:
+            #ignore
+            pass
 
         if receive_decode == "*":
             local_log(buffer_read)
@@ -49,10 +53,9 @@ def main():
             value = extract_str(buffer_read.replace("\n", "").replace("\r", ""))
             #check if value not empty
             if value: 
-                server_log()
+                server_log(value)
 
             buffer_read = "" 
-
 
 
 if __name__ == '__main__':
