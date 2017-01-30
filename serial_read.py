@@ -42,7 +42,7 @@ def main():
         #decode bytes
         try:
             receive_decode = receive.decode()
-            buffer_read += receive_decode
+            buffer_read += str(receive_decode)
         except ValueError:
             #ignore
             pass
