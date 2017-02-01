@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import serial
+import struct
 
 from extract_value import extract_str
 from sent_to_google_sheet import sent_data
@@ -16,6 +17,13 @@ def server_log(value):
     print("Sent:", value)
     with open("sent.txt", "a") as file_out:
         file_out.write(str(value) + "\n")
+        
+    rfid = "NONE"
+    start = "NONE"
+    end = "NONE"
+    data = struct.unpack('!f', bytes.fromhex(value[3][4:8] + value[3][0:4]))[0]
+    status = "NOT PASSED"
+    sent_data([[rfid, start, end, data, status]])
 
 def main():
     '''Logging PLC data
@@ -52,9 +60,10 @@ def main():
 
             value = extract_str(buffer_read.replace("\n", "").replace("\r", ""))
             #check if value not empty
-            if value: 
+            if value and value[1] == '015E00':
                 server_log(value)
 
+            #reset buffer
             buffer_read = "" 
 
 
