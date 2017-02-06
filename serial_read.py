@@ -2,6 +2,7 @@
 
 import serial
 import struct
+import datetime
 
 from extract_value import extract_str
 from sent_to_google_sheet import sent_data
@@ -13,17 +14,12 @@ def local_log(fins):
     with open("log.txt", "a") as file_out:
         file_out.write(fins)
 
-def server_log(value):
-    print("Sent:", value)
+def server_log(log_variable):
+    #local backup
     with open("sent.txt", "a") as file_out:
-        file_out.write(str(value) + "\n")
-        
-    rfid = "NONE"
-    start = "NONE"
-    end = "NONE"
-    data = struct.unpack('!f', bytes.fromhex(value[3][4:8] + value[3][0:4]))[0]
-    status = "NOT PASSED"
-    sent_data([[rfid, start, end, data, status]])
+        file_out.write(str(log_variable) + "\n")
+    #server log
+    sent_data([log_variable])
 
 def main():
     '''Logging PLC data
@@ -43,6 +39,13 @@ def main():
 
     buffer_read = ""
 
+    #log variable
+    rfid = "dummy"
+    start = ""
+    end = ""
+    max_load = ""
+    status = ""
+
     while True:
         receive = port.read()
         receive_decode = ""
@@ -58,10 +61,33 @@ def main():
         if receive_decode == "*":
             local_log(buffer_read)
 
-            value = extract_str(buffer_read.replace("\n", "").replace("\r", ""))
-            #check if value not empty
-            if value and value[1] == '015E00':
-                server_log(value)
+            data_list = extract_str(buffer_read.replace("\n", "")
+                .replace("\r", ""))
+
+            #check if data_list not empty
+            if data_list:
+                address = data_list[1]
+                value = data_list[3]
+                if address == "015F00": #start time
+                    start = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
+                elif address == "016000": #end time
+                    end = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
+                elif address == "016300": #status passed
+                    status = "PASSED"
+                elif address == "016400": #status sot passed
+                    status = "NOT PASSED"
+                elif address == "015E00": #max load
+                    max_load = struct.unpack('!f', 
+                        bytes.fromhex(value[4:8] + value[0:4]))[0]
+
+                    server_log([rfid, start, end, max_load, status])
+
+                    #reset log variable
+                    rfid = "dummy"
+                    start = ""
+                    end = ""
+                    max_load = ""
+                    status = ""
 
             #reset buffer
             buffer_read = "" 
