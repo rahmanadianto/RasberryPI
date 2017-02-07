@@ -3,6 +3,7 @@
 import serial
 import struct
 import datetime
+from time import sleep
 
 from extract_value import extract_str
 from sent_to_google_sheet import sent_data
@@ -26,17 +27,8 @@ def main():
 
     Write data to file data.txt
     '''
-    port = serial.Serial(
-        port = '/dev/ttyUSB0',
-        baudrate = 9600,
-        parity = serial.PARITY_NONE,
-        stopbits = serial.STOPBITS_ONE,
-        bytesize = serial.EIGHTBITS,
-        timeout = 1,
-        rtscts = False,
-        dsrdtr = False,
-        xonxoff = False)
-
+    #serial read variable
+    port = None
     buffer_read = ""
 
     #log variable
@@ -45,7 +37,25 @@ def main():
     end = ""
     max_load = ""
     status = ""
+    
+    #try connecting to port
+    while port is None:
+        try:
+            port = serial.Serial(
+                port = '/dev/ttyUSB0',
+                baudrate = 9600,
+                parity = serial.PARITY_NONE,
+                stopbits = serial.STOPBITS_ONE,
+                bytesize = serial.EIGHTBITS,
+                timeout = 1,
+                rtscts = False,
+                dsrdtr = False,
+                xonxoff = False)
+        except Exception:
+            print("USB not found")
+            sleep(1)
 
+    #start logging forever
     while True:
         receive = port.read()
         receive_decode = ""
