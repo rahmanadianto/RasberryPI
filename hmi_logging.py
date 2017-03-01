@@ -1,59 +1,46 @@
-#!/usr/bin/python3
-
-import serial
 import struct
 import datetime
 from time import sleep
 
-from extract_value import extract_str
-from sent_to_google_sheet import sent_data
+from fins import extract_str
+from google_sheet_api import sent_data
+from serial_helper import connect_port
 
 def local_log(fins):
-    '''Append fins data to log file
+    '''Append all fins communication to log file
     '''
     print(fins)
-    with open("log.txt", "a") as file_out:
+    with open("hmi_fins.txt", "a") as file_out:
         file_out.write(fins)
 
 def server_log(log_variable):
+    '''Sent extracted value to server
+    '''
     #local backup
-    with open("sent.txt", "a") as file_out:
+    with open("hmi_sent.txt", "a") as file_out:
         file_out.write(str(log_variable) + "\n")
     #server log
     sent_data([log_variable])
 
-def main():
+def logging():
     '''Logging PLC data
 
     Write data to file data.txt
     '''
-    #serial read variable
-    port = None
-    buffer_read = ""
+    #serial read buffer
+    buff = ""
 
-    #log variable
-    rfid = "dummy"
+    #hmi data
     start = ""
     end = ""
     max_load = ""
     status = ""
+
+    #other data
+    rfid = "dummy"
     
-    #try connecting to port
-    while port is None:
-        try:
-            port = serial.Serial(
-                port = '/dev/ttyUSB0',
-                baudrate = 9600,
-                parity = serial.PARITY_NONE,
-                stopbits = serial.STOPBITS_ONE,
-                bytesize = serial.EIGHTBITS,
-                timeout = 1,
-                rtscts = False,
-                dsrdtr = False,
-                xonxoff = False)
-        except Exception:
-            print("USB not found")
-            sleep(1)
+    #connect to port
+    ser = connect_port("/dev/ttyUSB0")
 
     #start logging forever
     while True:
@@ -63,15 +50,15 @@ def main():
         #decode bytes
         try:
             receive_decode = receive.decode()
-            buffer_read += str(receive_decode)
+            buff += str(receive_decode)
         except ValueError:
             #ignore
             pass
 
         if receive_decode == "*":
-            local_log(buffer_read)
+            local_log(buff)
 
-            data_list = extract_str(buffer_read.replace("\n", "")
+            data_list = extract_str(buff.replace("\n", "")
                 .replace("\r", ""))
 
             #check if data_list not empty
@@ -90,19 +77,15 @@ def main():
                     max_load = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
 
-                    server_log([rfid, start, end, max_load, status])
+            #check if hmi data has completed
+            if start and end and max_load and status:
+                server_log([rfid, start, end, max_load, status])
 
-                    #reset log variable
-                    rfid = "dummy"
-                    start = ""
-                    end = ""
-                    max_load = ""
-                    status = ""
+                #reset hmi data
+                start = ""
+                end = ""
+                max_load = ""
+                status = ""
 
             #reset buffer
-            buffer_read = "" 
-
-
-if __name__ == '__main__':
-    main()
-
+            buff = "" 
