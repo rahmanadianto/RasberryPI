@@ -7,17 +7,17 @@ def init_rfid(ser):
     '''Sent initialization command bytes to rfid
     '''
     ser.write(b"\xfe")
-    time.sleep(0.2)
+    sleep(0.2)
     ser.write(b"\xfe")
-    time.sleep(0.2)
+    sleep(0.2)
     ser.write(b"\xe1")
-    time.sleep(0.2)
+    sleep(0.2)
     ser.write(b"\xc2")
     ser.write(b"\xff")
-    time.sleep(0.2)
+    sleep(0.2)
     ser.write(b"\x20")
     ser.write(b"\xc0")
-    time.sleep(0.2)
+    sleep(0.2)
     ser.write(b"\x40")
     ser.write(b"\x02")
     ser.write(b"\x02")
@@ -26,18 +26,18 @@ def init_rfid(ser):
     ser.write(b"\x02")
     ser.write(b"\x02")
     ser.write(b"\xbc")
-    time.sleep(1)
+    sleep(1)
     ser.write(b"\x40")
     ser.write(b"\x02")
     ser.write(b"\x06")
     ser.write(b"\xb8")
-    time.sleep(1)
+    sleep(1)
     ser.write(b"\x40")
     ser.write(b"\x03")
     ser.write(b"\x0a")
     ser.write(b"\x01")
     ser.write(b"\xb2")
-    time.sleep(1)
+    sleep(1)
 
 def sent_read_cmd(ser):
     '''Sent read command to rfid, request data from rfid
@@ -53,7 +53,7 @@ def sent_read_cmd(ser):
     ser.write(b"\x40")
     ser.write(b"\x06")
 
-read_rfid():
+def read_rfid():
     '''Listening to rfid
     '''
     ser = connect_port("/dev/ttyS0")
@@ -73,7 +73,7 @@ read_rfid():
             try:
                 receive_decode = receive.decode()
                 str_log = str(hex(ord(receive_decode)))
-            except ValueError:
+            except Exception:
                 read = False
                 print("No data")
                  
