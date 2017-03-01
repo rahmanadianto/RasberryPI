@@ -1,6 +1,6 @@
 import requests
 
-#ID Barang, Kode Kategori, Kode Permohonan Vendo
+#ID Barang, Kode Kategori, Kode Permohonan Vendor
 url_product = "http://www.nawastratech.com:9002/feed.ashx?data=product&lab=AL"
 #ID Penguji
 url_tester = "http://www.nawastratech.com:9002/feed.ashx?data=tester&lab=AL"

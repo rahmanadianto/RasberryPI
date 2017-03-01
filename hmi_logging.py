@@ -1,10 +1,14 @@
 import struct
 import datetime
+import os
 from time import sleep
 
 from fins import extract_str
 from google_sheet_api import sent_data
 from serial_helper import connect_port
+
+#Testing device code
+DEVICE = "TEN01"
 
 def local_log(fins):
     '''Append all fins communication to log file
@@ -13,14 +17,36 @@ def local_log(fins):
     with open("hmi_fins.txt", "a") as file_out:
         file_out.write(fins)
 
-def server_log(log_variable):
-    '''Sent extracted value to server
+def server_log(testing_result):
+    '''Sent testing result to server
     '''
     #local backup
     with open("hmi_sent.txt", "a") as file_out:
-        file_out.write(str(log_variable) + "\n")
+        file_out.write(str(testing_result) + "\n")
     #server log
-    sent_data([log_variable])
+    sent_data([testing_result])
+    
+def dir_log(product, testing_result):
+    '''Save testing result to directory
+    '''
+    vendor = "VENDOR"
+    category = "CATEGORY"
+    with open("product.txt", "r") as f:
+        for line in f:
+            data = line.split(",")
+            if data[0] == product:
+                vendor = data[2]
+                category = data[1]
+                break
+    
+    folder = vendor + "_" + category + "_" + product + "_" + DEVICE
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    os.chdir(folder)
+    with open(folder + ".csv", "w") as f:
+        f.write(",".join(str(x) for x in testing_result))
+        f.write("\n")
+    os.chdir("..")
 
 def logging():
     '''Logging PLC data
