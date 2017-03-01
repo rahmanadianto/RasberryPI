@@ -98,3 +98,14 @@ def read_rfid():
             buff.append(str_log)   
                  
         sent_read_cmd(ser)
+        
+def validate_rfid(rfid):
+    '''Check rfid listed on server
+    '''
+    valid = False
+    with open("tester.txt", "r") as f:
+        for tester in f:
+            if tester == rfid:
+                valid = True
+                break
+    return valid
