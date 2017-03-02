@@ -70,7 +70,7 @@ def logging():
 
     #start logging forever
     while True:
-        receive = port.read()
+        receive = ser.read()
         receive_decode = ""
 
         #decode bytes
