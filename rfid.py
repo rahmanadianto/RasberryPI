@@ -6,6 +6,7 @@ from serial_helper import connect_port
 def init_rfid(ser):
     '''Sent initialization command bytes to rfid
     '''
+    print("Connecting rfid")
     ser.write(b"\xfe")
     sleep(0.2)
     ser.write(b"\xfe")
@@ -57,7 +58,8 @@ def read_rfid():
     '''Listening to rfid
     '''
     ser = connect_port("/dev/ttyS0")
-    buff = []
+    buff = ""
+    buff_list = []
 
     init_rfid(ser)
         
@@ -69,33 +71,37 @@ def read_rfid():
              
             receive = ser.read()
             str_log = ""
-
+            
             try:
-                receive_decode = receive.decode()
-                str_log = str(hex(ord(receive_decode)))
+                str_log = str(hex(ord(receive)))
+                
+                if str_log == "0xee":
+                    
+                    if len(buff_list) > 5:
+                        rfid = buff_list[3:len(buff_list)-3]
+                        rfid_str = ""
+                        for x in rfid:
+                            xv= x.replace("0x", "")
+                            if len(xv) < 2:
+                                xv = "0" + xv
+                            rfid_str += xv
+                        print(rfid_str)
+                    
+                    with open("rfid.txt", "a") as f:
+                        f.write(buff)
+                        f.write("\n")
+                    
+                    buff = ""
+                    buff += str_log + " "
+                    
+                    del buff_list[:]
+                    buff_list.append(str_log)
+                else:
+                    buff += str_log + " "
+                    buff_list.append(str_log)  
+                 
             except Exception:
-                read = False
-                print("No data")
-                 
-            if str_log == "0xee":
-                 
-                if len(buff) > 5:
-                    rfid = buff[3:len(buff)-3]
-                    rfid_str = ""
-                    for x in rfid:
-                        xv= x.replace("0x", "")
-                        if len(xv) < 2:
-                            xv = "0" + xv
-                        rfid_str += xv
-                    print(rfid_str)
-                 
-                with open("rfid.txt", "a") as f:
-                    f.write(" ".join(buff))
-                    f.write("\n")
-                 
-                del buff[:]
-
-            buff.append(str_log)   
+                read = False  
                  
         sent_read_cmd(ser)
         
@@ -109,3 +115,4 @@ def validate_rfid(rfid):
                 valid = True
                 break
     return valid
+    
