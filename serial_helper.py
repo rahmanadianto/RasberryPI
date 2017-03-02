@@ -1,4 +1,5 @@
 import serial
+from time import sleep
 
 def connect_port(port):
     ser = None

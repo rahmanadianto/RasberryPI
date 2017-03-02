@@ -2,6 +2,7 @@ import struct
 import datetime
 import os
 from time import sleep
+import argparse
 
 from fins import extract_str
 from google_sheet_api import sent_data
@@ -53,6 +54,12 @@ def logging():
 
     Write data to file data.txt
     '''
+    product = "None"
+    with open("tmp.txt", "r") as f:
+        for line in f:
+            product = line
+            
+    print("Testing product: ", product)
     #serial read buffer
     buff = ""
 
@@ -102,15 +109,19 @@ def logging():
                 elif address == "015E00": #max load
                     max_load = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
-                    server_log([rfid, start, end, max_load, status])
-                    #reset hmi data
+                    #server_log([rfid, start, end, max_load, status])
+                    dir_log(product, [rfid, start, end, max_load, status])
+                    return
+                    '''reset hmi data
                     start = ""
                     end = ""
                     max_load = ""
                     status = ""
+                    '''
 
             #reset buffer
             buff = "" 
             
 if __name__ == "__main__":
     logging()
+            

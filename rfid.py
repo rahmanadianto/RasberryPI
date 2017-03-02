@@ -1,12 +1,14 @@
 from time import sleep
+from subprocess import call
 
 from serial_helper import connect_port
+from hmi_logging import logging
 
  
 def init_rfid(ser):
     '''Sent initialization command bytes to rfid
     '''
-    print("Connecting rfid")
+    print("Connecting rfid...")
     ser.write(b"\xfe")
     sleep(0.2)
     ser.write(b"\xfe")
@@ -53,6 +55,10 @@ def sent_read_cmd(ser):
     ser.write(b"\xcb")
     ser.write(b"\x40")
     ser.write(b"\x06")
+    
+def save_rfid(data):
+    with open("tmp.txt", "w") as f:
+        f.write(data)
 
 def read_rfid():
     '''Listening to rfid
@@ -60,12 +66,14 @@ def read_rfid():
     ser = connect_port("/dev/ttyS0")
     buff = ""
     buff_list = []
+    first = True
 
     init_rfid(ser)
         
     while True: 
          
         read = True;
+        print("Waiting rfid data...")
      
         while read:
              
@@ -85,7 +93,13 @@ def read_rfid():
                             if len(xv) < 2:
                                 xv = "0" + xv
                             rfid_str += xv
-                        print(rfid_str)
+                        if not first:
+                            print(rfid_str)
+                            save_rfid(rfid_str)
+                            sleep(1)
+                            call(["lxterminal", "-e", "python3 /home/pi/RasberryPI/hmi_logging.py"])
+                            exit(0)
+                        first = False
                     
                     with open("rfid.txt", "a") as f:
                         f.write(buff)
@@ -109,10 +123,12 @@ def validate_rfid(rfid):
     '''Check rfid listed on server
     '''
     valid = False
-    with open("tester.txt", "r") as f:
+    with open("product.txt", "r") as f:
         for tester in f:
             if tester == rfid:
                 valid = True
                 break
     return valid
     
+if __name__ == "__main__":
+    read_rfid()
