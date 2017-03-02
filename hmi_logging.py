@@ -63,7 +63,7 @@ def logging():
     status = ""
 
     #other data
-    rfid = "dummy"
+    rfid = "cigadung"
     
     #connect to port
     ser = connect_port("/dev/ttyUSB0")
@@ -102,16 +102,15 @@ def logging():
                 elif address == "015E00": #max load
                     max_load = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
-
-            #check if hmi data has completed
-            if start and end and max_load and status:
-                server_log([rfid, start, end, max_load, status])
-
-                #reset hmi data
-                start = ""
-                end = ""
-                max_load = ""
-                status = ""
+                    server_log([rfid, start, end, max_load, status])
+                    #reset hmi data
+                    start = ""
+                    end = ""
+                    max_load = ""
+                    status = ""
 
             #reset buffer
             buff = "" 
+            
+if __name__ == "__main__":
+    logging()
