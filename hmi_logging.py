@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import struct
 import datetime
 import os
@@ -5,7 +6,7 @@ from time import sleep
 import argparse
 
 from fins import extract_str
-# google_sheet_api import sent_data
+from google_sheet_api import sent_data
 from serial_helper import connect_port
 
 #Testing device code
@@ -45,7 +46,9 @@ def dir_log(product, testing_result):
     if not os.path.exists(folder):
         os.mkdir(folder)
     os.chdir(folder)
-    with open(folder + ".csv", "w") as f:
+    
+    filename = folder + "_{}.csv".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    with open(filename, "w") as f:
         f.write(",".join(str(x) for x in testing_result))
         f.write("\n")
     os.chdir("..")
