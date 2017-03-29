@@ -5,7 +5,7 @@ from time import sleep
 import argparse
 
 from fins import extract_str
-from google_sheet_api import sent_data
+# google_sheet_api import sent_data
 from serial_helper import connect_port
 
 #Testing device code
@@ -32,6 +32,7 @@ def dir_log(product, testing_result):
     '''
     vendor = "VENDOR"
     category = "CATEGORY"
+    product = "13601128"
     with open("product.txt", "r") as f:
         for line in f:
             data = line.split(",")
@@ -70,7 +71,7 @@ def logging():
     status = ""
 
     #other data
-    rfid = "cigadung"
+    rfid = "1234"
     
     #connect to port
     ser = connect_port("/dev/ttyUSB0")
@@ -109,8 +110,8 @@ def logging():
                 elif address == "015E00": #max load
                     max_load = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
-                    #server_log([rfid, start, end, max_load, status])
-                    dir_log(product, [rfid, start, end, max_load, status])
+                    #server_log([rfid, product,start, end, max_load, status])
+                    dir_log(product, [rfid, product, start, end, max_load, status])
                     return
                     '''reset hmi data
                     start = ""

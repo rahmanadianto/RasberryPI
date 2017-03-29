@@ -1,9 +1,10 @@
 from time import sleep
-import subprocess
-import RPi.GPIO as GPIO
+from subprocess import call
 
 from serial_helper import connect_port
 from hmi_logging import logging
+import RPi.GPIO as GPIO
+import time
 
 GPIO.setmode(GPIO.BOARD)        
 GPIO.setwarnings(False)
@@ -59,7 +60,6 @@ def sent_read_cmd(ser):
     ser.write(b"\xcb")
     ser.write(b"\x40")
     ser.write(b"\x06")
-    sleep(1)
     
 def save_rfid(data):
     with open("tmp.txt", "w") as f:
@@ -76,6 +76,7 @@ def read_rfid():
     init_rfid(ser)
         
     while True: 
+         
         read = True;
         print("Waiting rfid data...")
      
@@ -97,22 +98,12 @@ def read_rfid():
                             if len(xv) < 2:
                                 xv = "0" + xv
                             rfid_str += xv
-                        
                         if not first:
                             print(rfid_str)
-                            if validate_rfid(rfid_str, "tester"):
-                                blink_led(True)
-                                save_rfid(rfid_str)
-                                sleep(0.5)
-                                p=subprocess.call([
-                                    "lxterminal", 
-                                    "-e", 
-                                    "python3 /home/pi/RasberryPI/hmi_logging.py"
-                                ])
-                                exit(0)
-                            else:
-                                blink_led(False)
-                                
+                            save_rfid(rfid_str)
+                            sleep(1)
+                            call(["lxterminal", "-e", "python3 /home/pi/RasberryPI/hmi_logging.py"])
+                            exit(0)
                         first = False
                     
                     with open("rfid.txt", "a") as f:
@@ -133,32 +124,17 @@ def read_rfid():
                  
         sent_read_cmd(ser)
         
-def validate_rfid(rfid, check):
+def validate_rfid(rfid):
     '''Check rfid listed on server
     '''
     valid = False
-    with open(check + ".txt", "r") as f:
+    with open("tester.txt", "r") as f:
         for tester in f:
-            if tester.replace("\n", "") == rfid:
+            if tester == rfid_str:
                 valid = True
                 break
-                
-    print(valid)
+            
     return valid
-    
-def blink_led(valid):
-    if valid:
-        GPIO.output(11,True)    
-        sleep(1)          
-        GPIO.output(11,False)
-    else:
-        GPIO.output(11,True)    
-        sleep(0.1)          
-        GPIO.output(11,False)
-        sleep(0.1)
-        GPIO.output(11,True)    
-        sleep(0.1)          
-        GPIO.output(11,False)
     
 if __name__ == "__main__":
     read_rfid()
