@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from time import sleep
 import subprocess
 import RPi.GPIO as GPIO
@@ -149,15 +150,19 @@ def validate_rfid(rfid, check):
 def blink_led(valid):
     if valid:
         GPIO.output(11,True)    
-        sleep(1)          
+        sleep(0.05)          
+        GPIO.output(11,False)
+        sleep(0.05)          
+        GPIO.output(11,True)
+        sleep(0.05)
+        GPIO.output(11,False)    
+        sleep(0.05)          
+        GPIO.output(11,True)
+        sleep(0.05)
         GPIO.output(11,False)
     else:
         GPIO.output(11,True)    
-        sleep(0.1)          
-        GPIO.output(11,False)
-        sleep(0.1)
-        GPIO.output(11,True)    
-        sleep(0.1)          
+        sleep(0.2)          
         GPIO.output(11,False)
     
 if __name__ == "__main__":

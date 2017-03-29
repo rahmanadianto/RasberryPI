@@ -28,12 +28,12 @@ def server_log(testing_result):
     #server log
     sent_data([testing_result])
     
-def dir_log(product, testing_result):
+def dir_log(testing_result):
     '''Save testing result to directory
     '''
     vendor = "VENDOR"
     category = "CATEGORY"
-    product = "13601128"
+    product = testing_result[0]
     with open("product.txt", "r") as f:
         for line in f:
             data = line.split(",")
@@ -58,10 +58,13 @@ def logging():
 
     Write data to file data.txt
     '''
-    product = "None"
+    
+    #Masih hardcode, nantinya baca dari rfid product
+    product = "14089977"
+    
     with open("tmp.txt", "r") as f:
         for line in f:
-            product = line
+            tester = line
             
     print("Testing product: ", product)
     #serial read buffer
@@ -72,9 +75,6 @@ def logging():
     end = ""
     max_load = ""
     status = ""
-
-    #other data
-    rfid = "1234"
     
     #connect to port
     ser = connect_port("/dev/ttyUSB0")
@@ -113,8 +113,8 @@ def logging():
                 elif address == "015E00": #max load
                     max_load = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
-                    #server_log([rfid, product,start, end, max_load, status])
-                    dir_log(product, [rfid, product, start, end, max_load, status])
+                    #server_log([tester, product,start, end, max_load, status])
+                    dir_log([tester, product, start, end, max_load, status])
                     return
                     '''reset hmi data
                     start = ""
