@@ -6,7 +6,7 @@ from time import sleep
 import argparse
 
 from fins import extract_str
-from google_sheet_api import sent_data
+#from google_sheet_api import sent_data
 from serial_helper import connect_port
 
 #Testing device code
@@ -26,19 +26,20 @@ def server_log(testing_result):
     with open("hmi_sent.txt", "a") as file_out:
         file_out.write(str(testing_result) + "\n")
     #server log
-    sent_data([testing_result])
+    #sent_data([testing_result]
+    #TODO: Remove google sheet log, upload  to server.
     
 def dir_log(testing_result):
     '''Save testing result to directory
     '''
     vendor = "VENDOR"
     category = "CATEGORY"
-    product = testing_result[0]
+    product = testing_result[1]
     with open("product.txt", "r") as f:
         for line in f:
             data = line.split(",")
             if data[0] == product:
-                vendor = data[2]
+                vendor = data[2].replace("\n", "")
                 category = data[1]
                 break
     
@@ -47,8 +48,7 @@ def dir_log(testing_result):
         os.mkdir(folder)
     os.chdir(folder)
     
-    filename = folder + "_{}.csv".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
-    with open(filename, "w") as f:
+    with open(folder + ".csv", "w") as f:
         f.write(",".join(str(x) for x in testing_result))
         f.write("\n")
     os.chdir("..")

@@ -140,7 +140,7 @@ def validate_rfid(rfid, check):
     valid = False
     with open(check + ".txt", "r") as f:
         for tester in f:
-            if tester.replace("\n", "") == rfid:
+            if tester.replace("\n","") == rfid:
                 valid = True
                 break
                 
@@ -164,6 +164,11 @@ def blink_led(valid):
         GPIO.output(11,True)    
         sleep(0.2)          
         GPIO.output(11,False)
+        sleep(0.2)
+        GPIO.output(11,True)    
+        sleep(0.2)
+        GPIO.output(11,False)         
+
     
 if __name__ == "__main__":
     read_rfid()
