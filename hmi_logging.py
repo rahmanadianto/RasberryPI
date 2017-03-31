@@ -1,12 +1,12 @@
 #!/usr/bin/python3
+
 import struct
 import datetime
 import os
+import subprocess
 from time import sleep
-import argparse
 
 from fins import extract_str
-#from google_sheet_api import sent_data
 from serial_helper import connect_port
 
 #Testing device code
@@ -26,7 +26,6 @@ def server_log(testing_result):
     with open("hmi_sent.txt", "a") as file_out:
         file_out.write(str(testing_result) + "\n")
     #server log
-    #sent_data([testing_result]
     #TODO: Remove google sheet log, upload  to server.
     
 def dir_log(testing_result):
@@ -59,12 +58,19 @@ def logging():
     Write data to file data.txt
     '''
     
-    #Masih hardcode, nantinya baca dari rfid product
-    product = "14089977"
+    #product
+    with open("product_tmp.txt", "r") as f:
+        for line in f:
+            product = line
     
-    with open("tmp.txt", "r") as f:
+    #product
+    with open("tester_tmp.txt", "r") as f:
         for line in f:
             tester = line
+            
+    #remove temporal data
+    #os.remove("tester_tmp.txt")
+    #os.remove("product_tmp.txt")
             
     print("Testing product: ", product)
     #serial read buffer
@@ -115,13 +121,14 @@ def logging():
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
                     #server_log([tester, product,start, end, max_load, status])
                     dir_log([tester, product, start, end, max_load, status])
-                    return
-                    '''reset hmi data
-                    start = ""
-                    end = ""
-                    max_load = ""
-                    status = ""
-                    '''
+                    
+                    #finish
+                    subprocess.call([
+                        "lxterminal", 
+                        "-e", 
+                        "python3 /home/pi/RasberryPI/main_program.py"
+                    ])
+                    exit(0)
 
             #reset buffer
             buff = "" 
