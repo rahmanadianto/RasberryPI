@@ -85,6 +85,7 @@ def read_rfid():
     ser = connect_port("/dev/ttyS0", 115200)
     buff = []
     tester_true = ""
+    tester_false = ""
     product_true = ""
     product_false = ""
     mode = 1
@@ -138,9 +139,10 @@ def read_rfid():
                             elif mode == 1 and not validate_tester(rfid_str) and rfid_str == product_false:
                                 #print("case 5")
                                 pass
-                            elif mode == 1 and not validate_tester(rfid_str) and rfid_str != product_true:
+                            elif mode == 1 and not validate_tester(rfid_str) and rfid_str != product_true and rfid_str != tester_false:
                                 print(rfid_str)
                                 blink_led(11, False)
+                                tester_false = rfid_str
                                 #print("case 6")
                         first = False
                             
