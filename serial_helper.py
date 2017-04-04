@@ -1,13 +1,13 @@
 import serial
 from time import sleep
 
-def connect_port(port):
+def connect_port(port, baudrate=9600):
     ser = None
     while ser is None:
         try:
             ser = serial.Serial(
                 port = port,
-                baudrate = 9600,
+                baudrate = baudrate,
                 parity = serial.PARITY_NONE,
                 stopbits = serial.STOPBITS_ONE,
                 bytesize = serial.EIGHTBITS,
