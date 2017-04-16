@@ -51,7 +51,7 @@ def main():
                     subprocess.call([
                         "lxterminal", 
                         "-e", 
-                        "python3 /home/pi/RasberryPI/rfid.py"
+                        "python3 /home/pi/RasberryPI/rfid_v2.py"
                     ])
                     exit(0)
 

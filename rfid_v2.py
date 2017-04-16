@@ -13,7 +13,7 @@ GPIO.setwarnings(False)
 GPIO.setup(11,GPIO.OUT)
 GPIO.setup(13,GPIO.OUT)
 
-TIMEOUT = 5
+TIMEOUT = 15
 
 
 def init_rfid(ser):
