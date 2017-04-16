@@ -3,6 +3,7 @@
 from time import sleep
 import subprocess
 import RPi.GPIO as GPIO
+import time
 
 from serial_helper import connect_port
 from hmi_logging import logging
@@ -11,6 +12,8 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(11,GPIO.OUT)
 GPIO.setup(13,GPIO.OUT)
+
+TIMEOUT = 5
 
 
 def init_rfid(ser):
@@ -90,6 +93,9 @@ def read_rfid():
     product_false = ""
     mode = 1
     
+    # timout
+    start = 0
+    
     #ignore first data from rfid
     first = True
 
@@ -100,6 +106,11 @@ def read_rfid():
         while read:
             receive = ser.read()
             str_log = ""
+            
+            if (time.time() - start >= TIMEOUT and start != 0):
+                mode = 1
+                print("Timeout, switch to mode 1")
+                start = 0
             
             try:
                 str_log = str(hex(ord(receive)))
@@ -114,6 +125,7 @@ def read_rfid():
                                 blink_led(11, True)
                                 #print("case 1")
                                 print("Mode", mode)
+                                start = time.time()
                             elif mode == 2 and not validate_product(rfid_str) and rfid_str == tester_true:
                                 #print("case 2")
                                 pass
@@ -124,9 +136,11 @@ def read_rfid():
                                 product_false = rfid_str
                                 #print("case 3")
                                 print("Mode", mode)
+                                start = 0
                             elif mode == 2 and validate_product(rfid_str):
                                 print(rfid_str)
                                 mode = 1
+                                start = 0
                                 product_true = rfid_str
                                 blink_led(13, True)
                                 subprocess.call([
