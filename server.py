@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import requests
 
 #ID Barang, Kode Kategori, Kode Permohonan Vendor
@@ -21,4 +23,6 @@ def download_data():
     with open("device.txt", "w") as f:
         f.write(device.text)
         
+if __name__ == "__main__":
+    download_data()
 

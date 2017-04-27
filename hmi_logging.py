@@ -3,6 +3,7 @@
 import struct
 import datetime
 import os
+import signal
 import subprocess
 from time import sleep
 
@@ -110,6 +111,9 @@ def logging():
                 value = data_list[3]
                 if address == "015F00": #start time
                     start = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
+                    with open("rfid_pid.txt") as f:
+                        pid = f.readline()
+                        os.kill(int(pid), signal.SIGKILL)
                 elif address == "016000": #end time
                     end = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
                 elif address == "016300": #status passed

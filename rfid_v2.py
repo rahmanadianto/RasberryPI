@@ -4,6 +4,7 @@ from time import sleep
 import subprocess
 import RPi.GPIO as GPIO
 import time
+import os
 
 from serial_helper import connect_port
 from hmi_logging import logging
@@ -67,7 +68,6 @@ def save_tester_tmp(data):
     with open("tester_tmp.txt", "w") as f:
         f.write(data)
 
-
 def save_product_tmp(data):
     print("Save product")
     with open("product_tmp.txt", "w") as f:
@@ -122,10 +122,11 @@ def read_rfid():
                                 print(rfid_str)
                                 mode = 2
                                 tester_true = rfid_str
+                                save_tester_tmp(rfid_str)
                                 blink_led(11, True)
                                 #print("case 1")
                                 print("Mode", mode)
-                                start = time.time()
+                                start = time.time()                                                               
                             elif mode == 2 and not validate_product(rfid_str) and rfid_str == tester_true:
                                 #print("case 2")
                                 pass
@@ -142,6 +143,7 @@ def read_rfid():
                                 mode = 1
                                 start = 0
                                 product_true = rfid_str
+                                save_product_tmp(rfid_str)
                                 blink_led(13, True)
                                 subprocess.call([
                                     "lxterminal",
@@ -157,7 +159,7 @@ def read_rfid():
                                 print(rfid_str)
                                 blink_led(11, False)
                                 tester_false = rfid_str
-                                #print("case 6")
+                                #print("case 6")                           
                         first = False
                             
                     with open("rfid.txt", "a") as f:
@@ -221,11 +223,11 @@ def blink_led(port, valid):
     else:
         try:
             GPIO.output(port,True)    
-            sleep(0.2)          
+            sleep(0.05)          
             GPIO.output(port,False)
-            sleep(0.2)
+            sleep(0.05)
             GPIO.output(port,True)    
-            sleep(0.2)
+            sleep(0.05)
             GPIO.output(port,False)
             print("Blink False")
         except Exception:
@@ -234,4 +236,8 @@ def blink_led(port, valid):
 
     
 if __name__ == "__main__":
+    pid = os.getpid()
+    with open("rfid_pid.txt", "w") as f:
+        f.write(str(pid))
+        
     read_rfid()
