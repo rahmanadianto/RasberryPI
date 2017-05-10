@@ -11,7 +11,7 @@ from fins import extract_str
 from serial_helper import connect_port
 
 #Testing device code
-DEVICE = "HCTEN"
+DEVICE = "TORSI"
 
 def local_log(fins):
     '''Append all fins communication to log file
@@ -80,9 +80,9 @@ def logging():
     #hmi data
     start = ""
     end = ""
-    max_load = ""
-    status = ""
-    
+    max_load_cw = ""
+    max_load_ccw = ""
+            
     #connect to port
     ser = connect_port("/dev/ttyUSB0")
 
@@ -109,22 +109,25 @@ def logging():
             if data_list:
                 address = data_list[1]
                 value = data_list[3]
-                if address == "015F00": #start time
+                if address == "016900": #start time
                     start = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
                     with open("rfid_pid.txt") as f:
                         pid = f.readline()
-                        os.kill(int(pid), signal.SIGKILL)
-                elif address == "016000": #end time
+                        #os.kill(int(pid), signal.SIGKILL)
+                elif address == "016A00": #end time
                     end = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
-                elif address == "016300": #status passed
+                elif address == "016B00": #status passed
                     status = "PASSED"
-                elif address == "016400": #status sot passed
+                elif address == "016C00": #status sot passed
                     status = "NOT PASSED"
                 elif address == "015E00": #max load
-                    max_load = struct.unpack('!f', 
+                    max_load_cw = struct.unpack('!f', 
                         bytes.fromhex(value[4:8] + value[0:4]))[0]
+                    max_load_ccw = struct.unpack('!f',
+                        bytes.fromhex(value[12:16] + value[8:12]))[0]
+                                            
                     #server_log([tester, product,start, end, max_load, status])
-                    dir_log([tester, product, start, end, max_load, status])
+                    dir_log([tester, product, start, end, max_load_cw, max_load_ccw, status])
                     
                     #finish
                     subprocess.call([
@@ -139,4 +142,3 @@ def logging():
             
 if __name__ == "__main__":
     logging()
-            

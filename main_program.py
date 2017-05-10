@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-#!/usr/bin/python3
-
 import struct
 import datetime
 import os
@@ -10,6 +8,7 @@ from time import sleep
 
 from fins import extract_str
 from serial_helper import connect_port
+from server import download_data
 
 def main():
     '''Main Program
@@ -47,7 +46,8 @@ def main():
             #check if data_list not empty
             if data_list:
                 address = data_list[1]
-                if address == "016800": #start read rfid
+                if address == "016800" or address == "015F00": #start read rfid
+                    #download_data()
                     subprocess.call([
                         "lxterminal", 
                         "-e", 
@@ -60,3 +60,4 @@ def main():
     
 if __name__ == "__main__":
     main()
+

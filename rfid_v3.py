@@ -14,7 +14,7 @@ GPIO.setwarnings(False)
 GPIO.setup(11,GPIO.OUT)
 GPIO.setup(13,GPIO.OUT)
 
-TIMEOUT = 15
+TIMEOUT = 10
 
 
 def init_rfid(ser):
@@ -108,7 +108,7 @@ def read_rfid():
             str_log = ""
             
             if (time.time() - start >= TIMEOUT and start != 0):
-                mode = 1
+                mode = 1                
                 print("Timeout, switch to mode 1")
                 start = 0
             
@@ -144,21 +144,22 @@ def read_rfid():
                                 start = 0
                                 product_true = rfid_str
                                 save_product_tmp(rfid_str)
+                                blink_led(11, True)                                
                                 blink_led(13, True)
-                                subprocess.call([
+                                '''subprocess.call([
                                     "lxterminal",
                                     "-e",
                                     "python3 /home/pi/RasberryPI/hmi_logging.py"
-                                ])   
+                                ])'''   
                                 #print("case 4")
-                                print("Mode", mode)
+                                print("Mode", mode)                                                                
                             elif mode == 1 and not validate_tester(rfid_str) and rfid_str == product_false:
                                 #print("case 5")
                                 pass
                             elif mode == 1 and not validate_tester(rfid_str) and rfid_str != product_true and rfid_str != tester_false:
                                 print(rfid_str)
-                                blink_led(11, False)
-                                tester_false = rfid_str
+                                blink_led(13, True)
+                                tester_false = rfid_str                                
                                 #print("case 6")                           
                         first = False
                             
@@ -204,31 +205,19 @@ def validate_product(rfid):
     
 def blink_led(port, valid):
     if valid:
-        try:
-            GPIO.output(port,True)    
-            sleep(0.1)          
-            GPIO.output(port,False)
-            sleep(0.1)          
+        try:            
             GPIO.output(port,True)
-            sleep(0.1)
-            GPIO.output(port,False)    
-            sleep(0.1)          
-            GPIO.output(port,True)
-            sleep(0.1)
-            GPIO.output(port,False)
-            print("Blink True")
+            sleep(0.05)
+            GPIO.output(port, False)                    
+            print("Blink True")            
         except Exception:
             print("Blink True Exception")
             return
     else:
-        try:
-            GPIO.output(port,True)    
-            sleep(0.1)          
-            GPIO.output(port,False)
-            sleep(0.1)
-            GPIO.output(port,True)    
-            sleep(0.1)
-            GPIO.output(port,False)
+        try:                  
+            GPIO.output(13,True)
+            sleep(0.2)
+            GPIO.output(13, False)
             print("Blink False")
         except Exception:
             print("Blink False Exception")
